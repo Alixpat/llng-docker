@@ -28,6 +28,8 @@ RUN echo "# Install nginx configuration files" && \
 
 RUN (echo ""; echo "daemon off;") >> /etc/nginx/nginx.conf
 
+RUN sed -i -e "s/listen \[::\]:80 default_server\;//" /etc/nginx/sites-enabled/default
+
 COPY install /
 
 EXPOSE 80
