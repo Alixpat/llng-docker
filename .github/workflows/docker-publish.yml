@@ -16,17 +16,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Login to Docker Hub
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v4
         with:
           images: yadd/lemonldap-ng-pg-database
       - name: Build and push Docker image for pg
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        uses: docker/build-push-action@v4
         with:
           context: ./pg
           push: true
@@ -50,19 +50,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v4
         with:
           images: yadd/lemonldap-ng-base
       - name: Build and push Docker image for base
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: ./base
           push: true
@@ -90,19 +90,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v4
         with:
           images: yadd/lemonldap-ng-portal
       - name: Build and push Docker image for portal
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: ./portal
           push: true
@@ -125,24 +125,62 @@ jobs:
           short_description: 'LemonLDAP::NG Portal'
           readme_file: 'portal/README.md'
 
-  build-and-push-manager:
+  build-and-push-cron:
     needs: build-and-push-base
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v4
+        with:
+          images: yadd/lemonldap-ng-cron
+      - name: Build and push Docker image for cron
+        uses: docker/build-push-action@v4
+        with:
+          context: ./cron
+          push: true
+          tags: |
+            yadd/lemonldap-ng-cron:latest
+            yadd/lemonldap-ng-cron:stable
+            yadd/lemonldap-ng-cron:${{ env.VERSION }}
+            yadd/lemonldap-ng-cron:${{ env.VERSION }}-${{ env.DEBIANVERSION }}
+          label: ${{ steps.meta.outputs.labels }}
+      - name: push README to Dockerhub
+        uses: christian-korneck/update-container-description-action@v1
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD }}
+        with:
+          destination_container_repo: yadd/lemonldap-ng-cron
+          provider: dockerhub
+          short_description: 'LemonLDAP::NG maintenance tasks runner'
+          readme_file: 'cron/README.md'
+
+  build-and-push-manager:
+    needs: build-and-push-base
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
         with:
           images: yadd/lemonldap-ng-manager
       - name: Build and push Docker image for manager
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: ./manager
           push: true
@@ -168,19 +206,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v4
         with:
           images: yadd/lemonldap-ng-full
       - name: Build and push Docker image for full
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: ./full
           push: true
@@ -206,19 +244,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v4
         with:
           images: yadd/lemonldap-ng-ssoaas-fastcgi-server
       - name: Build and push Docker image for SSOaaS FastCGI Server
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: ./ssoaas-fastcgi-server
           push: true
@@ -253,19 +291,19 @@ jobs:
             ${{ env.VERSION }}-${{ steps.date.outputs.date }}
             ${{ env.VERSION }}-${{ steps.date.outputs.date }}-${{ env.DEBIANVERSION }}
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v4
         with:
           images: yadd/lemonldap-ng-dev
       - name: Build and push Docker image for dev
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: ./dev
           push: true
